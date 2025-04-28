@@ -9,3 +9,4 @@ beautifulsoup4
 uvicorn
 python-dotenv
 langchain_community
+langchain-openai

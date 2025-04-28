@@ -99,3 +99,24 @@ Este proyecto está bajo licencia MIT.
 
 ¿Quieres que también te genere un archivo `requirements.txt` basado en la lista que me pasaste?  
 Así tendrías ya el pack completo para empezar 🚀.
+
+## 🌐 Flujo de búsqueda en internet
+
+El siguiente diagrama muestra cómo funciona el flujo de búsqueda en internet dentro del proyecto. Desde que el usuario realiza una consulta hasta que se genera una respuesta enriquecida con datos externos.
+
+## 🌐 Flujo de búsqueda en internet
+
+El siguiente diagrama muestra cómo funciona el flujo de búsqueda en internet dentro del proyecto. Desde que el usuario realiza una consulta hasta que se genera una respuesta enriquecida con datos externos.
+
+```mermaid
+graph TD
+    A[Usuario] -->|Consulta al endpoint /chat| B[FastAPI]
+    B -->|Llama a search_google| C[search_google - API de Google]
+    C -->|Realiza una solicitud HTTP| D[Google Custom Search API]
+    D -->|Devuelve resultados JSON| C
+    C -->|Procesa resultados| E[process_search_results_with_content]
+    E -->|Limpia y enriquece datos| F[fetch_page_content]
+    F -->|Obtiene contenido adicional de las páginas web| G[BeautifulSoup]
+    G -->|Devuelve contenido limpio| E
+    E -->|Resultados procesados| H[Langchain]
+    H -->|Genera respuesta con contexto| I[Respuesta final al usuario]

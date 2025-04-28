@@ -3,6 +3,7 @@ import os
 import requests
 import re
 from bs4 import BeautifulSoup
+from langchain_openai import ChatOpenAI
 
 # Agregar el directorio raíz del proyecto al PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -63,11 +64,18 @@ def fetch_page_content(url):
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Extraer los primeros párrafos relevantes
-        paragraphs = soup.find_all('p')
-        content = ' '.join(p.get_text() for p in paragraphs[:5])  # Limitar a los primeros 5 párrafos
+        # Buscar contenido en múltiples etiquetas relevantes
+        content = []
+        for tag in ['p', 'div', 'span', 'article']:
+            elements = soup.find_all(tag)
+            for element in elements[:5]:  # Limitar a los primeros 5 elementos por etiqueta
+                text = element.get_text(strip=True)
+                if text:
+                    content.append(text)
 
-        return clean_text(content)
+        # Combinar y limpiar el contenido extraído
+        combined_content = ' '.join(content)
+        return clean_text(combined_content)
     except Exception as e:
         print(f"Error al obtener contenido de {url}: {e}")
         return ""
@@ -81,33 +89,36 @@ def process_search_results(results):
     """
     processed_results = []
     for item in results.get("items", []):
-        # Extraer información básica
-        title = item.get("title")
-        link = item.get("link")
-        snippet = item.get("snippet")
+        try:
+            # Validar la estructura de los resultados
+            title = item.get("title", "Título no disponible")
+            link = item.get("link", "URL no disponible")
+            snippet = item.get("snippet", "No se proporcionó un resumen para este resultado.")
 
-        # Enriquecer el resumen con más contexto si está disponible
-        pagemap = item.get("pagemap", {})
-        additional_context = ""
+            # Enriquecer el resumen con más contexto si está disponible
+            pagemap = item.get("pagemap", {})
+            additional_context = ""
 
-        if "metatags" in pagemap:
-            metatags = pagemap["metatags"][0] if pagemap["metatags"] else {}
-            additional_context = metatags.get("og:description", "")
+            if "metatags" in pagemap:
+                metatags = pagemap["metatags"][0] if pagemap["metatags"] else {}
+                additional_context = metatags.get("og:description", "")
 
-        # Combinar snippet y contexto adicional
-        enriched_snippet = snippet
-        if additional_context:
-            enriched_snippet += f" {additional_context}"
+            # Combinar snippet y contexto adicional
+            enriched_snippet = snippet
+            if additional_context:
+                enriched_snippet += f" {additional_context}"
 
-        # Limpiar el texto del resumen
-        enriched_snippet = clean_text(enriched_snippet)
+            # Limpiar el texto del resumen
+            enriched_snippet = clean_text(enriched_snippet)
 
-        # Agregar el resultado procesado
-        processed_results.append({
-            "title": title,
-            "link": link,
-            "snippet": enriched_snippet.strip()
-        })
+            # Agregar el resultado procesado
+            processed_results.append({
+                "title": title,
+                "link": link,
+                "snippet": enriched_snippet.strip()
+            })
+        except Exception as e:
+            print(f"Error al procesar un resultado: {e}")
 
     return processed_results
 
@@ -120,29 +131,49 @@ def process_search_results_with_content(results):
     """
     processed_results = []
     for item in results.get("items", []):
-        # Extraer información básica
-        title = item.get("title")
-        link = item.get("link")
-        snippet = item.get("snippet")
+        try:
+            # Validar la estructura de los resultados
+            title = item.get("title", "Título no disponible")
+            link = item.get("link", "URL no disponible")
+            snippet = item.get("snippet", "No se proporcionó un resumen para este resultado.")
 
-        # Obtener contenido adicional de la página web
-        page_content = fetch_page_content(link)
+            # Obtener contenido adicional de la página web
+            page_content = fetch_page_content(link) if link != "URL no disponible" else ""
 
-        # Limpiar y combinar el contenido con el snippet
-        enriched_snippet = snippet
-        if page_content:
-            enriched_snippet += f" {page_content[:1000]}..."  # Limitar a 1000 caracteres
+            # Limpiar y combinar el contenido con el snippet
+            enriched_snippet = snippet
+            if page_content:
+                enriched_snippet += f"\nContenido adicional: {page_content[:500]}..."  # Limitar a 500 caracteres
 
-        enriched_snippet = clean_text(enriched_snippet)
+            enriched_snippet = clean_text(enriched_snippet)
 
-        # Agregar el resultado procesado
-        processed_results.append({
-            "title": title,
-            "link": link,
-            "snippet": enriched_snippet.strip()
-        })
+            # Agregar el resultado procesado
+            processed_results.append({
+                "title": title,
+                "link": link,
+                "snippet": enriched_snippet.strip()
+            })
+        except Exception as e:
+            print(f"Error al procesar un resultado: {e}")
+
+    # Registrar los resultados procesados para depuración
+    print("Resultados procesados:", processed_results)
 
     return processed_results
+
+def search_google_with_enhanced_query(query, api_key, cx):
+    """
+    Realiza una búsqueda en Google utilizando la query original.
+
+    :param query: Término de búsqueda original.
+    :param api_key: Clave de API de Google.
+    :param cx: ID del motor de búsqueda personalizado.
+    :return: Resultados de la búsqueda en formato JSON.
+    """
+    print(f"Query enviada: {query}")
+
+    # Realizar la búsqueda con la query original
+    return search_google(query, api_key, cx)
 
 def test_google_search():
     query = "FastAPI tutorial"
