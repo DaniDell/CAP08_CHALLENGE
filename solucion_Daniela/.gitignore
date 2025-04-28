@@ -1,0 +1,19 @@
+# Ignorar entornos virtuales
+venv/
+
+# Archivos de configuración sensibles
+.env
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+
+# Archivos de logs
+*.log
+
+# Archivos de bases de datos
+*.sqlite3
+
+# Archivos de configuración de IDE
+.vscode/
+.idea/

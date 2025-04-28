@@ -1,0 +1,11 @@
+fastapi
+openai
+langchain
+redis
+pandas
+scikit-learn
+spacy
+beautifulsoup4
+uvicorn
+python-dotenv
+langchain_community
