@@ -1,11 +1,5 @@
 """
 Servicio de procesamiento de lenguaje natural utilizando LangChain.
-
-Este módulo implementa la lógica de procesamiento de consultas utilizando el framework LangChain.
-Proporciona funcionalidades para:
-- Inicialización y gestión de la cadena de procesamiento
-- Manejo de consultas en modo streaming
-- Generación de respuestas con citas
 """
 
 from pathlib import Path
@@ -19,7 +13,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.callbacks import CallbackManagerForRetrieverRun
 
 from app.utils.knowledge_base import load_knowledge_base
 from app.config.settings import settings
@@ -28,53 +21,13 @@ from app.utils.knowledge_base import get_relevant_knowledge as kb_get_relevant_k
 import requests
 import json
 
-def create_history_aware_retriever(llm, retriever, memory):
-    """
-    Crea un retriever que tiene en cuenta el historial de conversación.
-    """
-    REPHRASE_TEMPLATE = """Dada la siguiente conversación y una pregunta, reformula la pregunta 
-    para obtener la información más relevante del contexto.
-
-    Chat History:
-    {chat_history}
-    
-    Pregunta: {question}
-    
-    Pregunta Reformulada:"""
-    
-    condense_question_prompt = PromptTemplate.from_template(REPHRASE_TEMPLATE)
-    
-    def format_chat_history(chat_history):
-        return "\n".join(
-            f"{msg.type.title()}: {msg.content}" for msg in chat_history
-        )
-
-    def get_chat_history():
-        memory_vars = memory.load_memory_variables({})
-        return memory_vars.get("chat_history", [])
-
-    # Pipeline para reformular la pregunta
-    condense_question_chain = (
-        {"chat_history": lambda x: format_chat_history(get_chat_history()), "question": RunnablePassthrough()}
-        | condense_question_prompt
-        | llm
-        | StrOutputParser()
-    )
-
-    # Pipeline para la búsqueda usando el nuevo método invoke
-    conversational_retrieval_chain = RunnableLambda(
-        lambda x: retriever.invoke(condense_question_chain.invoke(x))
-    )
-
-    return conversational_retrieval_chain
-
 def create_retrieval_chain(llm, context_retriever):
     """
     Crea una cadena de procesamiento que combina el contexto recuperado con la pregunta.
     """
     prompt = ChatPromptTemplate.from_messages([
         ("system", """Eres un asistente conversacional que proporciona respuestas concisas y directas.
-
+        
         Directrices:
         1. Mantén tus respuestas breves y al punto
         2. Usa lenguaje claro y sencillo
@@ -88,13 +41,15 @@ def create_retrieval_chain(llm, context_retriever):
     ])
 
     def format_docs(docs):
-        return "\n\n".join(doc.page_content for doc in docs)
+        if isinstance(docs, (list, tuple)):
+            return "\n\n".join(str(doc.page_content) if hasattr(doc, 'page_content') else str(doc) for doc in docs)
+        return str(docs)
 
-    # Pipeline completo
+    # Pipeline completo usando RunnableLambda para asegurar el tipo correcto
     chain = (
         {
-            "context": context_retriever | format_docs,
-            "question": RunnablePassthrough()
+            "context": RunnableLambda(lambda x: format_docs(context_retriever.get_relevant_documents(x["question"]))),
+            "question": RunnableLambda(lambda x: x["question"] if isinstance(x, dict) else str(x))
         }
         | prompt
         | llm
@@ -110,8 +65,6 @@ def initialize_chain():
     if not settings.OPENAI_API_KEY:
         raise ValueError("No se encontró la API key de OpenAI")
     
-    
-        
     # Solo configuramos los parámetros esenciales
     llm = ChatOpenAI(
         api_key=settings.OPENAI_API_KEY,
@@ -134,9 +87,8 @@ def initialize_chain():
             embeddings,
             allow_dangerous_deserialization=True
         )
-        # Convertir el vectorstore en un retriever
         retriever = vectorstore.as_retriever()
-    except Exception as e:
+    except Exception:
         # Si no existe el índice, creamos uno nuevo
         knowledge_base = load_knowledge_base()
         texts = []
@@ -150,21 +102,17 @@ def initialize_chain():
             
         vectorstore = FAISS.from_texts(texts, embeddings)
         vectorstore.save_local(settings.faiss_index_path)
-        # Convertir el vectorstore en un retriever
         retriever = vectorstore.as_retriever()
 
-    # Configuración de la memoria con los nuevos parámetros recomendados
+    # Configuración de la memoria
     memory = ConversationBufferMemory(
         memory_key="chat_history",
         return_messages=True,
-        output_key="output"  # Añadido para evitar la advertencia de depreciación
+        output_key="output"
     )
 
-    # Crear el retriever consciente del historial
-    history_aware_retriever = create_history_aware_retriever(llm, retriever, memory)
-    
     # Crear la cadena completa
-    chain = create_retrieval_chain(llm, history_aware_retriever)
+    chain = create_retrieval_chain(llm, retriever)
     
     # Envolver la cadena con la memoria
     message_history = ChatMessageHistory()
@@ -216,20 +164,24 @@ def process_query_with_web_search(query: str, session_id: str = "default") -> Di
         # Preparar el contexto enriquecido
         web_context = "\n\n".join([
             f"Fuente: {item['title']}\n"
-            f"Información: {item['snippet']}\n"
-            f"URL: {item['link']}"
+            f"Información: {item['snippet']}"
             for item in relevant_data[:5]
         ])
         
-        # Invocar la cadena con memoria y contexto enriquecido
-        enhanced_query = {
-            "question": f"{query}\n\nContexto adicional de la web:\n{web_context}"
+        # Preparar el input como diccionario
+        input_dict = {
+            "question": str(query),
+            "context": str(web_context)
         }
         
+        # Invocar la cadena asegurando que los tipos sean correctos
         response = chain.invoke(
-            enhanced_query,
+            input_dict,
             config={"configurable": {"session_id": session_id}}
         )
+        
+        # Asegurarse de que la respuesta sea string
+        response_text = str(response) if response is not None else ""
         
         # Formatear las citas
         citations = "\n".join([
@@ -237,92 +189,16 @@ def process_query_with_web_search(query: str, session_id: str = "default") -> Di
             for item in relevant_data[:5]
         ])
         
+        final_response = response_text
+        if citations:
+            final_response += "\n\nEnlaces consultados:\n" + citations
+        
         return {
-            "response": f"{response}\n\nEnlaces consultados:\n{citations}",
-            "relevant_sources": relevant_data
+            "response": final_response,
+            "relevant_sources": relevant_data[:5]
         }
     except Exception as e:
         return {
             "response": f"Error al procesar la consulta: {str(e)}",
             "relevant_sources": []
         }
-
-def generate_response_with_citations(context: Dict[str, Any], query: str) -> Dict[str, Any]:
-    """
-    Genera una respuesta utilizando Langchain y agrega citas automáticas.
-    """
-    try:
-        # Obtener información relevante de la web
-        relevant_data = get_relevant_knowledge(query)
-        
-        llm = ChatOpenAI(
-            api_key=settings.OPENAI_API_KEY,
-            model_name=settings.model_name,
-            temperature=settings.temperature,
-        )
-        
-        # Enriquecer el contexto con la información de la web
-        web_context = "\n\n".join([
-            f"Título: {item['title']}\nDescripción: {item['snippet']}\nFuente: {item['displayLink']}"
-            for item in relevant_data[:3]  # Usar solo los 3 primeros resultados para el contexto
-        ])
-        
-        enriched_context = f"{context}\n\nInformación adicional de la web:\n{web_context}"
-        
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", """Eres un asistente conversacional experto en responder preguntas.
-            Usa la información proporcionada en el contexto y la información adicional de la web.
-            Incluye referencias a las fuentes cuando sea apropiado."""),
-            ("human", "{query}"),
-            ("human", "Contexto: {context}")
-        ])
-
-        chain = prompt | llm | StrOutputParser()
-        response = chain.invoke({"context": enriched_context, "query": query})
-
-        # Formatear las citas
-        citations = "\n".join([
-            f"- {item['title']}: {item['link']}"
-            for item in relevant_data[:5]
-        ])
-
-        return {
-            "response": f"{response}\n\nEnlaces consultados:\n{citations}",
-            "relevant_sources": relevant_data
-        }
-    except Exception as e:
-        return {
-            "response": f"Error al generar la respuesta: {str(e)}",
-            "relevant_sources": []
-        }
-
-# URL base de la API
-BASE_URL = "http://localhost:8000"
-
-def chat_request(query):
-    """Realiza una solicitud al endpoint de chat."""
-    response = requests.post(f"{BASE_URL}/api/chat", params={"query": query})
-    return response.json()
-
-def main():
-    print("=== Cliente de Chat en Consola ===")
-    print("Escribe 'salir' para terminar.")
-    
-    while True:
-        query = input("\nTú: ")
-        if query.lower() in ["salir", "exit", "quit"]:
-            break
-            
-        try:
-            result = chat_request(query)
-            print(f"\nAsistente: {result['response']}")
-            
-            if result.get('relevant_sources'):
-                print("\nFuentes relevantes:")
-                for source in result['relevant_sources']:
-                    print(f"- {source.get('title', 'Sin título')}: {source.get('link', 'Sin enlace')}")
-        except Exception as e:
-            print(f"\nError: {str(e)}")
-
-if __name__ == "__main__":
-    main()
