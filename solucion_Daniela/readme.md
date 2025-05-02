@@ -1,7 +1,7 @@
 # Asistente Conversacional con LangChain
 
 ## Descripción
-Este proyecto implementa un asistente conversacional utilizando LangChain y OpenAI. El asistente puede responder preguntas basándose en una base de conocimiento y mantener el contexto de la conversación.
+Este proyecto implementa un asistente conversacional utilizando LangChain y OpenAI. El asistente puede responder preguntas basándose en una base de conocimiento y mantener el contexto de la conversación. También incluye capacidades de búsqueda en la web para enriquecer las respuestas.
 
 ## Requisitos
 - Python 3.8+
@@ -33,6 +33,8 @@ pip install -r requirements.txt
 Crear un archivo `.env` en la raíz del proyecto con:
 ```
 OPENAI_API_KEY=tu_clave_api_aquí
+GOOGLE_API_KEY=tu_clave_google_aquí
+GOOGLE_CX=tu_id_buscador_personalizado
 ```
 
 ## Ejecución
@@ -44,6 +46,13 @@ uvicorn app.main:app --reload
 
 Acceder a la documentación API en: http://127.0.0.1:8000/docs
 
+## Funcionalidades
+
+- **Chat Síncrono**: Endpoint `/api/chat` para obtener respuestas completas con citas.
+- **Chat en Streaming**: Endpoint `/api/chat/stream` para respuestas en tiempo real.
+- **Búsqueda en la Web**: Integra resultados de búsqueda para enriquecer las respuestas.
+- **Base de Conocimiento**: Respuestas basadas en un archivo JSON configurable.
+
 ## Notas sobre compatibilidad de versiones
 
 Este proyecto requiere versiones específicas de las bibliotecas de LangChain para funcionar correctamente. Se han actualizado las dependencias para resolver problemas de compatibilidad entre:
@@ -54,35 +63,29 @@ Este proyecto requiere versiones específicas de las bibliotecas de LangChain pa
 - langchain-text-splitters
 
 Si encuentras errores relacionados con parámetros no reconocidos (como "proxies"), asegúrate de que todas las dependencias estén actualizadas a las versiones especificadas en requirements.txt.
-```
 
 ## Actualización del código si es necesario
 
 Si después de actualizar las dependencias sigues teniendo problemas, es posible que necesites actualizar algunas partes del código para adaptarlo a las nuevas versiones de las bibliotecas. Aquí hay algunas sugerencias basadas en los cambios comunes entre versiones:
 
-```python:app\services\langchain_service.py
+```python
 # Actualiza las importaciones si es necesario
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain.memory import ConversationBufferMemory
-from langchain_community.vectorstores import FAISS
-from langchain.prompts import PromptTemplate, ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.messages import HumanMessage, AIMessage
-
-# Asegúrate de que la inicialización de ChatOpenAI sea compatible con la nueva versión
-llm = ChatOpenAI(
-    api_key=settings.OPENAI_API_KEY,  # Cambio de openai_api_key a api_key si es necesario
-    model_name=settings.model_name,
-    temperature=settings.temperature,
-)
+def initialize_chain():
+    """
+    Inicializa la cadena de procesamiento de LangChain.
+    """
+    llm = ChatOpenAI(
+        api_key=settings.OPENAI_API_KEY,  # Cambio de openai_api_key a api_key si es necesario
+        model_name=settings.model_name,
+        temperature=settings.temperature,
+    )
 ```
 
 ## Documentación adicional
 
 También es recomendable añadir comentarios en el código para explicar los cambios realizados y documentar cualquier consideración importante para futuras actualizaciones:
 
-```python:app\services\langchain_service.py
+```python
 """
 Servicio de procesamiento de lenguaje natural utilizando LangChain.
 
@@ -100,3 +103,4 @@ Este código ha sido actualizado para funcionar con:
 Si se actualizan estas dependencias, revisar la compatibilidad de los parámetros
 en la inicialización de ChatOpenAI y otros componentes.
 """
+```

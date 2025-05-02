@@ -8,7 +8,7 @@ endpoints y middlewares necesarios.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers.chat_router import router as chat_router
-from app.routers.chat import router as chat_basic_router
+
 
 # Crear la aplicación FastAPI
 app = FastAPI(
@@ -28,7 +28,7 @@ app.add_middleware(
 
 # Incluir los routers
 app.include_router(chat_router)
-app.include_router(chat_basic_router)
+
 
 @app.get("/")
 async def root():
