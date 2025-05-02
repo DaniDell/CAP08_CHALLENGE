@@ -14,7 +14,7 @@ La configuración incluye:
 
 from functools import lru_cache
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, ClassVar
 import os
 from dotenv import load_dotenv
 
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     
     # Rutas de archivos
     knowledge_base_path: str = "data/knowledge_base.json"
-    faiss_index_path: str = "data/faiss_index"
+    HISTORICAL_CONVERSATION_FILE: ClassVar[str] = "data/historical_conversation.json"
     
     # Configuración del modelo
     model_name: str = "gpt-3.5-turbo"

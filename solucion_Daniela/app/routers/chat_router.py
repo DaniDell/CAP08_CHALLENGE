@@ -9,22 +9,33 @@ from fastapi import APIRouter, Query, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from app.services.langchain_service import process_query_with_web_search
 from app.utils.knowledge_base import load_knowledge_base, get_relevant_knowledge
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import json
 import asyncio
+from enum import Enum
 
 router = APIRouter(
     tags=["chat"]
 )
 
+class PromptType(str, Enum):
+    DEFAULT = "default"
+    FRIENDLY = "friendly"
+    TECHNICAL = "technical"
+
 @router.post("/api/chat/stream")
-async def chat_stream(query: str = Query(..., min_length=1), session_id: str = "default"):
+async def chat_stream(
+    query: str = Query(..., min_length=1), 
+    session_id: str = "default",
+    prompt_type: PromptType = PromptType.DEFAULT
+):
     """
     Endpoint para chat en modo streaming.
     
     Args:
         query: La consulta del usuario
         session_id: ID de sesión para mantener el contexto
+        prompt_type: Tipo de prompt a utilizar (default, friendly, technical)
         
     Returns:
         StreamingResponse: Respuesta en streaming con el formato SSE
@@ -35,7 +46,7 @@ async def chat_stream(query: str = Query(..., min_length=1), session_id: str = "
     try:
         async def generate():
             # Obtener la respuesta completa
-            result = process_query_with_web_search(query, session_id)
+            result = process_query_with_web_search(query, session_id, prompt_type.value)
             
             # Procesar la respuesta principal
             if isinstance(result, dict) and "response" in result:
@@ -67,13 +78,18 @@ async def chat_stream(query: str = Query(..., min_length=1), session_id: str = "
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/api/chat")
-async def chat(query: str = Query(..., min_length=1), session_id: str = "default"):
+async def chat(
+    query: str = Query(..., min_length=1), 
+    session_id: str = "default",
+    prompt_type: PromptType = PromptType.DEFAULT
+):
     """
     Endpoint para chat síncrono con citas.
     
     Args:
         query: La consulta del usuario
         session_id: ID de sesión para mantener el contexto
+        prompt_type: Tipo de prompt a utilizar (default, friendly, technical)
         
     Returns:
         JSONResponse: Respuesta con la información y fuentes relevantes
@@ -82,7 +98,7 @@ async def chat(query: str = Query(..., min_length=1), session_id: str = "default
         raise HTTPException(status_code=422, detail="La consulta no puede estar vacía")
         
     try:
-        result = process_query_with_web_search(query, session_id)
+        result = process_query_with_web_search(query, session_id, prompt_type.value)
         return JSONResponse(result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

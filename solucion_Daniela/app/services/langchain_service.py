@@ -1,203 +1,196 @@
 """
 Servicio de procesamiento de lenguaje natural utilizando LangChain.
+
+Este módulo proporciona funcionalidades para procesar consultas de usuario utilizando
+LangChain, con capacidad de memoria histórica y búsqueda web para enriquecer las respuestas.
 """
 
-from pathlib import Path
 from typing import Generator, Dict, Any, List, Optional
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
-from langchain_community.vectorstores import FAISS
-from langchain.prompts import PromptTemplate, ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.messages import HumanMessage, AIMessage
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-from app.utils.knowledge_base import load_knowledge_base
 from app.config.settings import settings
-from app.utils.knowledge_base import get_relevant_knowledge as kb_get_relevant_knowledge
+from app.utils.helpers import save_conversation, get_conversation_history
+from app.utils.knowledge_base import get_relevant_knowledge
+from app.prompts.system_prompt import ASSISTANT_PROMPT, FRIENDLY_ASSISTANT_PROMPT, TECHNICAL_ASSISTANT_PROMPT
+import logging
 
-import requests
-import json
+# Configurar logging
+logger = logging.getLogger(__name__)
 
-def create_retrieval_chain(llm, context_retriever):
+# Diccionario para almacenar la memoria por sesión
+session_memories = {}
+
+def create_chain_with_memory(llm, session_id, prompt_type="default"):
     """
-    Crea una cadena de procesamiento que combina el contexto recuperado con la pregunta.
+    Crea una cadena de procesamiento con memoria histórica.
+
+    Args:
+        llm: Modelo de lenguaje configurado.
+        session_id: ID de sesión para mantener el historial de la conversación.
+        prompt_type: Tipo de prompt a utilizar ("default", "friendly", "technical").
+
+    Returns:
+        Una cadena de procesamiento con memoria histórica.
     """
+    # Obtener o crear memoria para la sesión
+    if session_id not in session_memories:
+        session_memories[session_id] = ConversationBufferMemory(
+            memory_key="chat_history",
+            return_messages=True
+        )
+
+    memory = session_memories[session_id]
+
+    # Seleccionar el prompt según el tipo
+    system_prompt = ASSISTANT_PROMPT  # Default
+    if prompt_type == "friendly":
+        system_prompt = FRIENDLY_ASSISTANT_PROMPT
+    elif prompt_type == "technical":
+        system_prompt = TECHNICAL_ASSISTANT_PROMPT
+
+    # Crear el prompt con el sistema seleccionado
     prompt = ChatPromptTemplate.from_messages([
-        ("system", """Eres un asistente conversacional que proporciona respuestas concisas y directas.
-        
-        Directrices:
-        1. Mantén tus respuestas breves y al punto
-        2. Usa lenguaje claro y sencillo
-        3. Estructura tu respuesta en máximo 2-3 párrafos cortos
-        4. Comparte solo los enlaces más relevantes que el usuario pueda consultar para profundizar en el tema
-        
-        Recuerda: La brevedad y claridad son esenciales. No necesitas explicar todo - proporciona la información más importante
-        y deja que el usuario decida si quiere investigar más a través de los enlaces proporcionados."""),
-        ("human", "{question}"),
-        ("human", "Contexto encontrado:\n{context}")
+        ("system", system_prompt),
+        ("human", "{question}")
     ])
 
-    def format_docs(docs):
-        if isinstance(docs, (list, tuple)):
-            return "\n\n".join(str(doc.page_content) if hasattr(doc, 'page_content') else str(doc) for doc in docs)
-        return str(docs)
+    # Configurar historial de mensajes
+    message_history = ChatMessageHistory()
+    
+    # Cargar historial previo desde el archivo JSON
+    prev_history = get_conversation_history(session_id)
+    if prev_history:
+        # Añadir los mensajes previos al historial
+        for entry in prev_history:
+            if "user_message" in entry and "assistant_message" in entry:
+                message_history.add_user_message(entry["user_message"])
+                message_history.add_ai_message(entry["assistant_message"])
 
-    # Pipeline completo usando RunnableLambda para asegurar el tipo correcto
-    chain = (
+    # Envolver la cadena con capacidad de historial
+    chain_with_history = RunnableWithMessageHistory(
         {
-            "context": RunnableLambda(lambda x: format_docs(context_retriever.get_relevant_documents(x["question"]))),
-            "question": RunnableLambda(lambda x: x["question"] if isinstance(x, dict) else str(x))
+            "question": lambda x: x["question"] if isinstance(x, dict) else str(x)
         }
         | prompt
         | llm
-        | StrOutputParser()
+        | StrOutputParser(),
+        lambda _: message_history,
+        input_messages_key="question",
+        history_messages_key="chat_history"
     )
 
-    return chain
+    return chain_with_history
 
-def initialize_chain():
+
+def initialize_chain(session_id: str, prompt_type: str = "default"):
     """
-    Inicializa la cadena de procesamiento de LangChain.
+    Inicializa la cadena de procesamiento de LangChain con memoria histórica.
+
+    Args:
+        session_id: ID de sesión para mantener el historial de la conversación.
+        prompt_type: Tipo de prompt a utilizar ("default", "friendly", "technical").
+
+    Returns:
+        Una cadena de procesamiento con memoria histórica.
     """
     if not settings.OPENAI_API_KEY:
         raise ValueError("No se encontró la API key de OpenAI")
-    
-    # Solo configuramos los parámetros esenciales
+
+    # Configurar el modelo de lenguaje
     llm = ChatOpenAI(
         api_key=settings.OPENAI_API_KEY,
         model_name=settings.model_name,
         temperature=settings.temperature,
     )
-    
-    embeddings = OpenAIEmbeddings(
-        api_key=settings.OPENAI_API_KEY,
-    )
-    
-    # Asegurarse de que existe el directorio para el índice FAISS
-    index_dir = Path(settings.faiss_index_path).parent
-    index_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Intentar cargar el índice existente o crear uno nuevo
-    try:
-        vectorstore = FAISS.load_local(
-            settings.faiss_index_path,
-            embeddings,
-            allow_dangerous_deserialization=True
-        )
-        retriever = vectorstore.as_retriever()
-    except Exception:
-        # Si no existe el índice, creamos uno nuevo
-        knowledge_base = load_knowledge_base()
-        texts = []
-        if isinstance(knowledge_base, list):
-            texts = [doc.get("text", "") for doc in knowledge_base]
-        elif isinstance(knowledge_base, dict):
-            texts = [doc.get("text", "") for doc in knowledge_base.get("content", [])]
-            
-        if not texts:
-            texts = ["Información inicial"]  # Texto placeholder si no hay contenido
-            
-        vectorstore = FAISS.from_texts(texts, embeddings)
-        vectorstore.save_local(settings.faiss_index_path)
-        retriever = vectorstore.as_retriever()
 
-    # Configuración de la memoria
-    memory = ConversationBufferMemory(
-        memory_key="chat_history",
-        return_messages=True,
-        output_key="output"
-    )
+    # Crear la cadena con memoria
+    return create_chain_with_memory(llm, session_id, prompt_type)
 
-    # Crear la cadena completa
-    chain = create_retrieval_chain(llm, retriever)
-    
-    # Envolver la cadena con la memoria
-    message_history = ChatMessageHistory()
-    chain_with_history = RunnableWithMessageHistory(
-        chain,
-        lambda session_id: message_history,
-        input_messages_key="question",
-        history_messages_key="chat_history"
-    )
-    
-    return chain_with_history
 
-def get_relevant_knowledge(query: str) -> List[Dict[str, Any]]:
-    """
-    Obtiene información relevante de la web para una consulta dada.
-    """
-    try:
-        # Usar la implementación de knowledge_base.py
-        return kb_get_relevant_knowledge(query)
-    except Exception as e:
-        print(f"Error en búsqueda web: {str(e)}")
-        return []
-
-def process_query(query: str, session_id: str = "default") -> Generator[str, None, None]:
+def process_query(query: str, session_id: str = "default", prompt_type: str = "default") -> Generator[str, None, None]:
     """
     Procesa una consulta del usuario y genera una respuesta en streaming.
+
+    Args:
+        query: La consulta del usuario.
+        session_id: ID de sesión para mantener el historial de la conversación.
+        prompt_type: Tipo de prompt a utilizar ("default", "friendly", "technical").
+
+    Yields:
+        Respuesta generada por el modelo.
     """
     try:
-        chain = initialize_chain()
+        chain = initialize_chain(session_id, prompt_type)
         response = chain.invoke(
             {"question": query},
             config={"configurable": {"session_id": session_id}}
         )
+        
+        # Guardar la conversación en el historial
+        save_conversation(query, response, session_id)
+        
         yield response
     except Exception as e:
+        logger.error(f"Error al procesar la consulta: {str(e)}")
         yield f"Error al procesar la consulta: {str(e)}"
 
-def process_query_with_web_search(query: str, session_id: str = "default") -> Dict[str, Any]:
+
+def process_query_with_web_search(query: str, session_id: str = "default", prompt_type: str = "default") -> Dict[str, Any]:
     """
     Procesa una consulta con memoria y búsqueda web.
+
+    Args:
+        query: La consulta del usuario.
+        session_id: ID de sesión para mantener el historial de la conversación.
+        prompt_type: Tipo de prompt a utilizar ("default", "friendly", "technical").
+
+    Returns:
+        Diccionario con la respuesta generada y las fuentes relevantes.
     """
     try:
         # Inicializar la cadena con memoria
-        chain = initialize_chain()
+        chain = initialize_chain(session_id, prompt_type)
         
-        # Obtener información relevante de la web
-        relevant_data = get_relevant_knowledge(query)
+        # Realizar búsqueda en Google para obtener información relevante
+        relevant_sources = get_relevant_knowledge(query, max_results=5)
         
-        # Preparar el contexto enriquecido
-        web_context = "\n\n".join([
-            f"Fuente: {item['title']}\n"
-            f"Información: {item['snippet']}"
-            for item in relevant_data[:5]
-        ])
-        
+        # Preparar contexto con la información obtenida
+        context = ""
+        if relevant_sources:
+            context = "Información relevante:\n"
+            for idx, result in enumerate(relevant_sources[:3], 1):  # Limitar a 3 resultados para el contexto
+                context += f"{idx}. {result['title']}: {result['snippet']}\n"
+                context += f"   Fuente: {result['link']}\n\n"
+
         # Preparar el input como diccionario
         input_dict = {
             "question": str(query),
-            "context": str(web_context)
+            "context": context
         }
-        
+
         # Invocar la cadena asegurando que los tipos sean correctos
         response = chain.invoke(
             input_dict,
             config={"configurable": {"session_id": session_id}}
         )
-        
+
         # Asegurarse de que la respuesta sea string
         response_text = str(response) if response is not None else ""
         
-        # Formatear las citas
-        citations = "\n".join([
-            f"- {item['title']}: {item['link']}"
-            for item in relevant_data[:5]
-        ])
-        
-        final_response = response_text
-        if citations:
-            final_response += "\n\nEnlaces consultados:\n" + citations
-        
+        # Guardar la conversación en el historial incluyendo las fuentes relevantes
+        save_conversation(query, response_text, session_id, relevant_sources)
+
         return {
-            "response": final_response,
-            "relevant_sources": relevant_data[:5]
+            "response": response_text,
+            "relevant_sources": relevant_sources
         }
     except Exception as e:
+        logger.error(f"Error al procesar la consulta: {str(e)}")
         return {
             "response": f"Error al procesar la consulta: {str(e)}",
             "relevant_sources": []

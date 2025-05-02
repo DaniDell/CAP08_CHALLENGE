@@ -10,6 +10,7 @@ Funcionalidades principales:
 - Carga de datos desde archivo JSON
 - Procesamiento y estructuración de la información
 - Validación de datos
+- Búsqueda de información en Google
 """
 
 import json
@@ -17,19 +18,24 @@ import requests
 from typing import Dict, List, Any
 import logging
 import os
-import redis
+import sys
+
+# Añadir el directorio raíz del proyecto al PYTHONPATH
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+# Importar las funciones de búsqueda
+from retrieval.search import search_google, process_search_results
 
 # Configuración del logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configuración de Redis
+# Configuración desde settings
 from app.config.settings import settings
-redis_client = redis.StrictRedis.from_url(settings.REDIS_URL)
 
 def load_knowledge_base(file_path: str = "data/knowledge_base.json") -> Dict[str, Any]:
     """
-    Carga la base de conocimientos desde un archivo JSON o Redis si está disponible.
+    Carga la base de conocimientos desde un archivo JSON.
     
     Args:
         file_path (str): Ruta al archivo JSON de la base de conocimientos
@@ -41,15 +47,6 @@ def load_knowledge_base(file_path: str = "data/knowledge_base.json") -> Dict[str
         FileNotFoundError: Si no se encuentra el archivo
         json.JSONDecodeError: Si el archivo no es un JSON válido
     """
-    try:
-        # Intentar cargar desde Redis
-        data = redis_client.get("knowledge_base")
-        if data:
-            logger.info("Base de conocimientos cargada exitosamente desde Redis")
-            return json.loads(data)
-    except redis.RedisError:
-        logger.warning("Redis no está disponible, cargando desde archivo JSON")
-
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
@@ -64,7 +61,7 @@ def load_knowledge_base(file_path: str = "data/knowledge_base.json") -> Dict[str
 
 def save_knowledge_base(data: Dict[str, Any], file_path: str = "data/knowledge_base.json"):
     """
-    Guarda la base de conocimientos en un archivo JSON o Redis si está disponible.
+    Guarda la base de conocimientos en un archivo JSON.
     
     Args:
         data (Dict[str, Any]): Datos de la base de conocimientos a guardar
@@ -73,14 +70,6 @@ def save_knowledge_base(data: Dict[str, Any], file_path: str = "data/knowledge_b
     Raises:
         Exception: Si ocurre un error al guardar los datos
     """
-    try:
-        # Intentar guardar en Redis
-        redis_client.set("knowledge_base", json.dumps(data))
-        logger.info("Base de conocimientos guardada exitosamente en Redis")
-        return
-    except redis.RedisError:
-        logger.warning("Redis no está disponible, guardando en archivo JSON")
-
     try:
         with open(file_path, 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
@@ -131,50 +120,14 @@ def get_relevant_knowledge(query: str, max_results: int = 5) -> list:
         Lista de diccionarios con información relevante
     """
     try:
-        # Construir la URL de la API de Google
-        url = f"{settings.GOOGLE_API_HOST}"
-        params = {
-            'key': settings.GOOGLE_API_KEY,
-            'cx': settings.GOOGLE_CX,
-            'q': query,
-            'fields': settings.GOOGLE_FIELDS,
-            'num': max_results
-        }
+        # Utilizar las funciones del módulo retrieval/search.py
+        results = search_google(query, settings.GOOGLE_API_KEY, settings.GOOGLE_CX)
         
-        # Configurar headers
-        headers = {
-            'Accept-Encoding': settings.HEADER_ACCEPT_ENCODING,
-            'User-Agent': settings.HEADER_USER_AGENT
-        }
+        # Procesar los resultados con la función especializada
+        processed_results = process_search_results(results)
         
-        # Realizar la solicitud
-        response = requests.get(url, params=params, headers=headers)
-        
-        if response.status_code != 200:
-            logger.error(f"Error en la API de Google: {response.status_code}")
-            return []
-            
-        data = response.json()
-        
-        # Extraer la información relevante
-        results = []
-        if 'items' in data:
-            for item in data['items']:
-                result = {
-                    'title': item.get('title', ''),
-                    'link': item.get('link', ''),
-                    'snippet': item.get('snippet', ''),
-                    'displayLink': item.get('displayLink', '')
-                }
-                
-                # Añadir thumbnail si está disponible
-                if 'pagemap' in item and 'cse_thumbnail' in item['pagemap']:
-                    thumbnail = item['pagemap']['cse_thumbnail'][0]
-                    result['thumbnail'] = thumbnail.get('src', '')
-                
-                results.append(result)
-                
-        return results
+        # Limitar el número de resultados
+        return processed_results[:max_results]
     except Exception as e:
         logger.error(f"Error al obtener información relevante: {str(e)}")
         return []
