@@ -52,6 +52,35 @@ Acceder a la documentación API en: http://127.0.0.1:8000/docs
 - **Chat en Streaming**: Endpoint `/api/chat/stream` para respuestas en tiempo real.
 - **Búsqueda en la Web**: Integra resultados de búsqueda para enriquecer las respuestas.
 - **Base de Conocimiento**: Respuestas basadas en un archivo JSON configurable.
+- **Memoria de Conversación**: Mantiene el contexto de conversaciones previas.
+- **Manejo Inteligente de Fuentes**: Muestra fuentes solo cuando son relevantes para la consulta.
+
+## Características Avanzadas
+
+### Procesamiento Inteligente de Búsquedas Web
+
+El sistema procesa siempre los primeros 5 enlaces relevantes de cada consulta (cumpliendo con el requisito técnico), pero implementa una lógica para determinar cuándo mostrar estas fuentes al usuario:
+
+1. **Para consultas normales**: Muestra todas las fuentes relevantes encontradas, priorizando las que contienen información específica y útil.
+
+2. **Para consultas conversacionales** (como "¿de qué hablamos antes?"): 
+   - Procesa igualmente los 5 enlaces para cumplir con el requisito técnico
+   - Guarda esta información en los logs para análisis y seguimiento
+   - No muestra las fuentes web al usuario, ya que no son relevantes para este tipo de consultas
+   - Se centra en recuperar el contexto previo de la conversación
+
+### Estructura Mejorada de Prompts
+
+El sistema incluye tres variantes de prompts con instrucciones especializadas:
+
+1. **ASSISTANT_PROMPT (Default)**: Para respuestas concisas y directas con tono neutral.
+2. **FRIENDLY_ASSISTANT_PROMPT**: Para respuestas con tono conversacional y amigable.
+3. **TECHNICAL_ASSISTANT_PROMPT**: Para respuestas técnicas detalladas y precisas.
+
+Todos los prompts incluyen instrucciones específicas para:
+- Integrar naturalmente la información del contexto
+- Utilizar fuentes solo cuando añadan valor real
+- Manejar preguntas sobre la conversación anterior priorizando el historial
 
 ## Notas sobre compatibilidad de versiones
 

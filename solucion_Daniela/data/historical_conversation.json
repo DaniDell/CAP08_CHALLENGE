@@ -1,166 +1,75 @@
 [
+    {},
     {
         "session_id": "default",
-        "timestamp": "2025-05-02T14:45:03.830795",
-        "user_message": "como se hace un pure de papas",
-        "assistant_message": "Para hacer un puré de papas, primero pela las papas y córtalas en trozos. Luego, hiérvelas en agua con sal hasta que estén suaves. Escúrrelas y aplástalas con un tenedor o utiliza un procesador de alimentos para hacerlas puré. Añade mantequilla, leche caliente, sal y pimienta al gusto, y mezcla todo hasta obtener una consistencia suave y cremosa. Puedes encontrar una receta detallada en este enlace: https://www.recetasgratis.net/receta-de-pure-de-papas-158.html. ¡Disfruta tu puré de papas!"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T14:45:41.919801",
-        "user_message": "como se hacen las milanesas",
-        "assistant_message": "Para hacer milanesas, primero necesitas cortar la carne en filetes delgados. Luego, pasa los filetes por harina, huevo batido y pan rallado antes de freírlos en aceite caliente hasta que estén dorados y crujientes. Aquí tienes un enlace con una receta detallada de cómo hacer milanesas: https://www.directoalpaladar.com/recetas-de-carnes-y-aves/milanesas-carne-receta-tradicional-paso-a-paso\n\n¡Disfruta de tus milanesas!"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T14:45:57.182953",
-        "user_message": "de que esy¿tuvimos hablando",
-        "assistant_message": "¡Hola! Parece que hubo un error en tu mensaje, ¿podrías por favor reformular tu pregunta o proporcionar más detalles para poder ayudarte adecuadamente? ¡Estoy aquí para ayudarte en lo que necesites!"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T14:46:33.222442",
-        "user_message": "sobre que estuvimos hablando?",
-        "assistant_message": "Hemos estado hablando sobre cómo puedo ayudarte a responder preguntas o proporcionar información sobre diversos temas. Si deseas profundizar en algún tema específico o tienes alguna pregunta en mente, ¡estaré encantado de ayudarte! ¿Hay algo en lo que te pueda asistir ahora?"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T14:51:11.065594",
-        "user_message": "de que color es el cielo",
-        "assistant_message": "El color del cielo puede variar dependiendo de diferentes factores como la posición del sol, la atmósfera y la cantidad de partículas en suspensión. Generalmente, durante el día el cielo suele verse azul debido a la dispersión de la luz solar en la atmósfera. En ocasiones, al atardecer o amanecer, puede verse de tonalidades rojizas, anaranjadas o rosadas.\n\nSi deseas obtener más información detallada sobre por qué el cielo es azul, te recomiendo consultar este enlace: https://es.wikipedia.org/wiki/Azul_celeste"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T15:00:22.863706",
-        "user_message": "como hacer tortilla de papas",
-        "assistant_message": "¡Claro que sí! Para hacer una deliciosa tortilla de papas necesitarás papas, huevos, cebolla, sal y aceite. Aquí te dejo una receta simple que puedes seguir: \n\n1. Pela y corta las papas en rodajas finas, y la cebolla en juliana.\n2. Fríe las papas y la cebolla en aceite caliente hasta que estén tiernas, luego escúrrelas bien.\n3. Bate los huevos en un bol, añade las papas y la cebolla, sazona con sal y mezcla bien.\n4. Calienta un poco de aceite en una sartén, vierte la mezcla y cocina a fuego medio-bajo hasta que la tortilla esté cuajada.\n5. Dale la vuelta con la ayuda de un plato o tapa y cocina por el otro lado.\n\n¡Listo! Ya tienes tu tortilla de papas lista para disfrutar. Si deseas más detalles, puedes consultar esta receta paso a paso: [Receta de tortilla de papas](https://www.recetasgratis.net/receta-de-tortilla-de-patatas-42835.html). ¡Buen provecho!"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T15:00:46.917771",
-        "user_message": "como hacer milanesas",
-        "assistant_message": "¡Hacer milanesas es muy fácil y delicioso! Primero, corta la carne en filetes delgados. Luego, pasa cada filete por harina, luego por huevo batido y finalmente por pan rallado. Fríe las milanesas en aceite caliente hasta que estén doradas por ambos lados. ¡Y listo, ya tienes unas ricas milanesas!\n\nSi deseas más detalles o tips adicionales, te recomiendo que consultes este enlace con una receta paso a paso: [Receta de milanesas caseras](https://www.recetasgratis.net/receta-de-milanesa-casera-45199.html). ¡Espero que disfrutes preparando y saboreando estas deliciosas milanesas! ¡Buen provecho!"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T15:01:06.740863",
-        "user_message": "sobre que estuvimos hablando?",
-        "assistant_message": "¡Hola! Estábamos hablando sobre cómo puedo ayudarte. Si tienes alguna pregunta o necesitas información, ¡estaré aquí para ayudarte en lo que necesites! ¿En qué puedo asistirte hoy?"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T15:38:05.430288",
-        "user_message": "en que hemisferio esta argentina",
-        "assistant_message": "Argentina se encuentra en el hemisferio sur del planeta Tierra. Esto significa que se ubica por debajo del ecuador y comparte esta característica con otros países como Australia, Sudáfrica y Brasil. Si deseas obtener más información sobre la geografía de Argentina, te recomendaría explorar sitios web especializados en geografía o consultar mapas en línea para tener una mejor idea de su ubicación."
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T15:47:11.786549",
-        "user_message": "como es el universo",
-        "assistant_message": "El universo es vasto y en constante expansión. Está compuesto por galaxias, estrellas, planetas, asteroides, entre otros cuerpos celestes. Se rige por leyes físicas como la gravedad y la relatividad, y se cree que se originó hace aproximadamente 13.8 mil millones de años en el Big Bang. Para explorar más sobre este tema fascinante, te recomiendo que consultes fuentes confiables como la NASA o el sitio web del Telescopio Espacial Hubble.\n\n- Para más información, puedes visitar: https://www.nasa.gov/\n- Explora el Telescopio Espacial Hubble en: https://hubblesite.org/"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T15:47:33.400863",
-        "user_message": "sobre que estuvimos hablando?",
-        "assistant_message": "Hasta ahora no hemos discutido un tema específico. ¿Hay algo en lo que te gustaría profundizar o alguna pregunta concreta con la que pueda ayudarte? ¡Estoy aquí para ayudarte en lo que necesites!"
-    },
-    {
-        "session_id": "default",
-        "timestamp": "2025-05-02T16:01:40.349552",
-        "user_message": "por donde se esconde el sol",
-        "assistant_message": "El sol no se esconde, sino que en realidad parece ponerse en el horizonte debido a la rotación de la Tierra. Este fenómeno se conoce como puesta de sol. El sol siempre está en el centro de nuestro sistema solar y es la fuente de luz y calor para la Tierra. Si quieres saber más sobre cómo se produce la puesta de sol, puedes consultar este enlace: https://www.nationalgeographic.es/espacio/sol/puesta-sol-como-se-produce-este-fenomeno\n\nRecuerda que el sol nunca desaparece por completo, simplemente se oculta momentáneamente detrás del horizonte a medida que la Tierra continúa su rotación.",
+        "timestamp": "2025-05-02T20:18:36.068193",
+        "user_message": "como hacer claras a nieve",
+        "assistant_message": "Para hacer claras a punto de nieve, primero asegúrate de que tanto el bol como las varillas estén limpios y secos, ya que cualquier resto de grasa puede evitar que las claras monten correctamente. Luego, separa las claras de las yemas con cuidado para evitar que caiga algo de yema en las claras. Bate las claras a velocidad media-alta hasta que estén espumosas y luego añade gradualmente el azúcar mientras continúas batiendo hasta obtener picos firmes y brillantes. Las claras montadas a punto de nieve se utilizan en diversas recetas para dar esponjosidad y ligereza a postres y platos salados.\n\nPuedes encontrar videos tutoriales en plataformas como YouTube que te guiarán visualmente en el proceso de montar las claras a punto de nieve, lo cual puede ser de gran ayuda para asegurarte de obtener el resultado deseado en tus preparaciones culinarias.",
         "relevant_sources": [
             {
-                "title": "Por dónde sale y se pone el sol y cómo orientarte sin brújula",
-                "link": "https://www.lasexta.com/como-que-cuando/donde-sale-pone-sol-como-orientarte-brujula_2023022663ac2069169730000170b507.html",
-                "snippet": "Feb 26, 2023 ... El  está centrado en  sistema solar, por lo que   ni  . La observación de  salida   puesta del Sol  debe a la rotación ... Por dónde sale  se pone el sol y cómo orientarte sin brújula"
+                "title": "Cómo hacer claras de huevo a punto de nieve - YouTube",
+                "link": "https://www.youtube.com/watch?v=Qu5-0ZLeboc&pp=0gcJCdgAo7VqN5tD",
+                "snippet": "Aug 15, 2016 ...                   : ... Descubre Cómo hacer claras  huevo a punto de nieve y así conseguirás los mejores postres Pasos escritos aquí:  ¡¡Síguenos!! Facebook  Instagram  Youtube  Recetas en tu Email  Twitter  Google Plus  Cocina Casera"
             },
             {
-                "title": "Santa Monica: una espectacular puesta de sol en la playa ...",
-                "link": "https://www.rodandoporelmundo.com/santa-monica-una-espectacular-puesta-de-sol-en-la-playa/",
-                "snippet": "Jan 17, 2017 ... En       encuentra     la mítica Ruta 66. El , convertido  una bola anaranjada, se esconde   ... Las playas  Santa Monica son famosas en todo  mundo. Con su muelle  madera y sus puestas de sol, es el punto final perfecto para nuestro road trip."
+                "title": "CÓMO MONTAR CLARAS A PUNTO DE NIEVE CON BATIDORA ...",
+                "link": "https://m.youtube.com/watch?v=J70eafQuUow",
+                "snippet": "Sep 24, 2020 ...  claras a punto de nieve  utilizan en muchas  dulces pero también se pueden utiliar para preparar algunas recetas saladas. Las ..."
             },
             {
-                "title": "Día y noche",
-                "link": "https://www.pnc.com/es/about-pnc/corporate-responsibility/grow-up-great/lesson-center/our-sky/day-and-night.html",
-                "snippet": "Cuando   gira lo suficientemente lejos, ya no podemos ver el Sol, y es de noche (consulte ¿Sabía ...?). Pídale al niño “Tierra” que se dé la vuelta ..."
+                "title": "Montar claras a punto de nieve - YouTube",
+                "link": "https://www.youtube.com/watch?v=GLq0cYB-HIg",
+                "snippet": "Feb 7, 2012 ...                 ...  Esta técnica  montar claras  punto  nieve nos va a servir  base para múltiples elaboraciones tanto  pastelería como de cocina salada. Para ver más recetas, visita"
             },
             {
-                "title": "Siguiéndole los pasos al Sol desde Bogotá - TEOFANÍAS",
-                "link": "http://teologiadefractales.blogspot.com/2016/12/21-de-marzo-equinoccio-de-primavera-en.html",
-                "snippet": "Dec 23, 2016 ... ...  la noche   distintas épocas del año. Y vemos cómo cambia  punto por donde  Sol sale  las mañanas  se oculta   atardecer. 21 - 25  Marzo Equinoccio  Primavera   hemisferio Norte y de Otoño en  sur Equi-noccio: el día dura exactamente lo mismo..."
+                "title": "Las claras de huevo se pueden batir a punto de nieve, incluso con ...",
+                "link": "https://www.reddit.com/r/Baking/comments/10gie5c/egg_whites_can_be_beaten_to_stiff_peaks_even_with/?tl=es-es",
+                "snippet": "Jan 20, 2023 ... Puedes batir los huevos enteros y el azúcar hasta formar una espuma  base para un bizcocho, no es tan espesa o estable como las claras, ¡ ... Posted by u/AnemoneGoldman - 120 votes and 42 comments"
             },
             {
-                "title": "¿Dónde ver los mejores atardeceres de Nueva York? | Civitatis ...",
-                "link": "https://www.civitatis.com/blog/mejores-atardeceres-nueva-york/",
-                "snippet": "Aug 1, 2022 ... ... se esconde  sol desde el edificio más alto  la Gran Manzana? Preparad vuestra cámara  retratar las panorámicas del atardecer de ... ¿Dónde ver  mejores atardeceres en Nueva York? En Civitatis hemos escogido los lugares apropiados para ello. ¡Tomad nota!"
+                "title": "Cómo montar claras a punto de nieve, trucos y consejos",
+                "link": "https://recetasdecocina.elmundo.es/2022/06/como-montar-claras-a-punto-de-nieve-trucos-consejos.html",
+                "snippet": "Jun 30, 2022 ... Saber cómo        un   la repostería, digo básico porque es clave  preparar diversos . ¿Cómo montar  a punto de nieve? Trucos  que las claras queden correctamente montadas para tus postres. Tips culinarios infalibles."
             }
         ]
     },
     {
         "session_id": "default",
-        "timestamp": "2025-05-02T16:06:37.547228",
-        "user_message": "sobre que estuvimos hablando",
-        "assistant_message": "Hasta ahora, estábamos hablando sobre la importancia de mantener respuestas concisas y directas en nuestras conversaciones. Este enfoque ayuda a transmitir la información de manera clara y efectiva. Si deseas profundizar más en el tema, puedes encontrar más información sobre la comunicación clara y precisa en este enlace: https://www.forbes.com/sites/forbescommunicationscouncil/2017/08/03/the-power-of-communicating-clearly-and-concisely/#6b3b2d517f9e",
-        "relevant_sources": [
-            {
-                "title": "El pasado jueves, 7 de marzo, estuve compartiendo con los jóvenes ...",
-                "link": "https://www.facebook.com/story.php?story_fbid=812967124204175&id=100064726837323",
-                "snippet": ",   ,       @   .        ... El pasado jueves, 7  marzo, estuve compartiendo con los jóvenes de @bgcpr en Aguas Buenas. Estuvimos hablando un poco sobre la importancia del autocuidado para alcanzar nuestras metas.  Amo..."
-            },
-            {
-                "title": "No estamos hablando lo suficiente sobre las mascotas de HH. : r ...",
-                "link": "https://www.reddit.com/r/HazbinHotel/comments/1e7jnjn/we_arent_talking_enough_about_the_hh_pets/?tl=es-es",
-                "snippet": "Jul 20, 2024 ... Razzle   dan vibras  mejores amigos perrunos, y como alguien que perdió a su perro el año pasado, la muerte de Dazzle me afectó ... Posted by u/No_Seaworthiness3901 - 660 votes and 70 comments"
-            },
-            {
-                "title": "Hoy en la mañana estuvimos hablando en @ingridtamaramvs sobre ...",
-                "link": "https://www.facebook.com/IngridCoro/posts/hoy-en-la-ma%C3%B1ana-estuvimos-hablando-en-ingridtamaramvs-sobre-el-amor-en-abundanc/10159282559866474/",
-                "snippet": "Jan 4, 2021 ...        @   #            ... Hoy   mañana estuvimos hablando  @ingridtamaramvs sobre  # en abundancia  la importancia de encontrar un equilibrio entre el dar y recibir. Si solo damos, no  amor es conveniencia...."
-            },
-            {
-                "title": "Estamos hablando con Richard Garfield sobre su forma favorita de ...",
-                "link": "https://www.reddit.com/r/magicTCG/comments/1dndly2/were_talking_with_richard_garfield_about_his/?tl=es-es",
-                "snippet": "Jun 24, 2024 ... ¡  ,      ! r/boardgames - ¡Anunciamos The Hunger, un nuevo juego de Richard Garfield! Posted by u/andymangold - 372 votes and 36 comments"
-            },
-            {
-                "title": "¿Estamos hablando demasiado sobre la salud mental? - The New ...",
-                "link": "https://www.nytimes.com/es/2024/05/12/espanol/salud-mental-ninos-escuelas.html",
-                "snippet": "May 12, 2024 ... Los investigadores del estudio especularon   programas de capacitación “concientizan sobre  pensamientos perturbadores”     ... Estudios recientes ponen  duda  las intervenciones en salud mental  gran escala le hacen bien a los niños y adolescentes. Algunos, incluso, sugieren que pueden tener un efecto negativo."
-            }
-        ]
+        "timestamp": "2025-05-02T20:19:16.104995",
+        "user_message": "que pastel puede hacer con esta preparacion?",
+        "assistant_message": "Tu pregunta parece estar relacionada con nuestra conversación anterior sobre 'como hacer claras a nieve', pero necesito un poco más de contexto. ¿Podrías proporcionar más detalles o reformular tu pregunta?",
+        "relevant_sources": []
     },
     {
         "session_id": "default",
-        "timestamp": "2025-05-02T16:12:03.726985",
-        "user_message": "cuales son los 3 colores primarios",
-        "assistant_message": "Los tres colores primarios son el rojo, el azul y el amarillo. Estos colores son la base para crear todos los demás colores en el círculo cromático. Puedes obtener más información sobre los colores primarios en este enlace: https://es.wikipedia.org/wiki/Color_primario",
+        "timestamp": "2025-05-02T20:20:00.932183",
+        "user_message": "quiero hacer una torta con claras a nieve",
+        "assistant_message": "Para hacer una torta con claras a nieve, puedes probar una receta de bizcocho que aprovecha las claras sobrantes. Una opción es un bizcocho de claras que resulta jugoso y suave. La receta típicamente incluye ingredientes como claras de huevo, aceite de oliva virgen extra, leche entera, azúcar, harina de trigo, levadura o polvo de hornear, entre otros. Puedes encontrar recetas detalladas en diversas fuentes en línea para guiarte en la preparación de este tipo de torta.\n\nAdemás, otra alternativa es un bizcochuelo con claras batidas a nieve, que también puede ser una excelente base para tu torta. Esta receta implica batir las claras a punto de nieve con azúcar, y luego incorporarlas suavemente a la mezcla para lograr un bizcocho esponjoso. Puedes buscar recetas específicas de bizcochuelo con claras batidas a nieve en sitios web de cocina para seguir paso a paso y disfrutar de una deliciosa torta casera.",
         "relevant_sources": [
             {
-                "title": "Colores primarios : r/oilpainting",
-                "link": "https://www.reddit.com/r/oilpainting/comments/tlh38a/primary_colors/?tl=es-es",
-                "snippet": "Mar 23, 2022 ... Hola amigos, ¿Cuáles dirías  son los colores primarios  hay  tener para mezclar básicamente cualquier color que quieras? Gracias :) Posted by u/[Deleted Account] - 1 vote and 6 comments"
+                "title": "BIZCOCHO DE CLARAS ~ Receta de aprovechamiento - YouTube",
+                "link": "https://www.youtube.com/watch?v=itd0gLAj_Ds",
+                "snippet": "Feb 20, 2020 ...                        ... BIZCOCHO  CLARAS Hoy vamos a preparar este sencillo   aprovechar      nos han sobrado  unas natillas caseras   hecho  para   sólo hemos utilizado las yemas.  un bizcocho  fácil  hacer   queda muy jugoso  suave. Ingredientes: - 4 claras   - 40   aceite  oliva virgen extra - 80 ml   entera - Una pizca  sal - Unas gotas  limón  ralladura -    azúcar - 120   harina  trigo - 10 gr  levadura o polvo  hornear - Azúcar glass(opcional)  RECETA ESCRITA AQUÍ:  En estos enlaces puedes ver más RECETAS DE BIZCOCHOS   calabaza con crema  anacardos:    turrón:  Bizcocho  huevo y sin leche:  Suscríbete al canal ¡Es gratis!:  Visita mi blog de recetas Y hoy que comemos:"
             },
             {
-                "title": "Cuáles son los colores primarios | Cómo",
-                "link": "https://www.elmundo.es/como/2022/04/29/626ab2d6fc6c83a80a8b45a5.html",
-                "snippet": "Apr 29, 2022 ...  rojo;  amarillo;  azul. Si estos tres  básicos  combinan entre sí a partes iguales, se generan   secundarios:. El mundo   colores  fascinante. Para empezar, los objetos  vemos no tienen color, sino  lo que hacen es reflejar las longitudes  onda de la luz, siendo nuestro..."
+                "title": "CÓMO MONTAR CLARAS A PUNTO DE NIEVE CON BATIDORA ...",
+                "link": "https://m.youtube.com/watch?v=J70eafQuUow",
+                "snippet": "Sep 24, 2020 ...  claras a punto de nieve  utilizan en muchas  dulces pero también se pueden utiliar para preparar algunas recetas saladas. Las ..."
             },
             {
-                "title": "Color primario - Wikipedia, la enciclopedia libre",
-                "link": "https://es.wikipedia.org/wiki/Color_primario",
-                "snippet": "...  posibles. En física,  tres colores primarios suelen ser  rojo,  verde y el azul, según los diferentes tipos de pigmentos fotorreceptores en ..."
+                "title": "Cómo hacer claras de huevo a punto de nieve - YouTube",
+                "link": "https://www.youtube.com/watch?v=Qu5-0ZLeboc",
+                "snippet": "Aug 15, 2016 ...                   : ... Descubre Cómo hacer claras  huevo a punto de nieve y así conseguirás los mejores postres Pasos escritos aquí:  ¡¡Síguenos!! Facebook  Instagram  Youtube  Recetas en tu Email  Twitter  Google Plus  Cocina Casera"
             },
             {
-                "title": "¿Por qué los colores primarios para la luz son diferentes de los ...",
-                "link": "https://www.reddit.com/r/askscience/comments/1jqs8e/why_are_the_primary_colors_for_light_different/?tl=es-es",
-                "snippet": "Aug 5, 2013 ... En  pintura, todos los colores provienen del amarillo, magenta ( rojo) o cian (casi azul). ¿Cuál es la razón de esta diferencia? Posted by u/Aks95 - 128 votes and 19 comments"
+                "title": "SOLO 2 INGREDIENTES sin AZÚCAR sin HARINA sin LACTEOS ...",
+                "link": "https://m.youtube.com/watch?v=Jy3mHzYeChM",
+                "snippet": "Apr 29, 2021 ... Si sois tan chocolateros como lo puedo ser yo , no os podéis perder ... CAKE 100% SUGAR  AND MILK FREE  ..."
             },
             {
-                "title": "Colores primarios REALES (NO rojo, amarillo ni azul) - braided STEM",
-                "link": "https://braidedstem.org/colores-primarios-reales/",
-                "snippet": "?”  : “¿   ...  tres  están activados, rojo + verde + azul, hace que su ojo vea ... Si le pregunta a una física, \"¿Cuáles son los colores primarios?\" Te preguntarían: \"¿Estás hablando de  o pintura?\" La respuesta es diferente para la luz y"
+                "title": "Bizcochuelo con claras batidas a nieve!! Receta de Fernanda Perez ...",
+                "link": "https://cookpad.com/ar/recetas/3417050-bizcochuelo-con-claras-batidas-a-nieve",
+                "snippet": "Sep 27, 2017 ... Primero separamos yemas   en un bols, batimos las   punto   la mitad  azúcar reservamos. Mira esta deliciosa receta de Bizcochuelo con claras batidas a nieve!!."
             }
         ]
     }

@@ -24,7 +24,7 @@ def search_google(query, api_key, cx):
         "q": query,
         "key": api_key,
         "cx": cx,
-        "num": 5  # Limitar a los primeros 5 resultados
+        "num": 10  # Limitar a los primeros 5 resultados
     }
 
     response = requests.get(url, params=params)

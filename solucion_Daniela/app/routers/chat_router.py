@@ -61,9 +61,10 @@ async def chat_stream(
                         yield f"data: {json.dumps({'type': 'message', 'content': paragraph.strip()})}\n\n".encode('utf-8')
                         await asyncio.sleep(0.1)
                 
-                # Enviar las fuentes si existen
-                if "relevant_sources" in result:
-                    sources = result["relevant_sources"]
+                # Enviar solo las fuentes más relevantes si existen
+                if "relevant_sources" in result and result["relevant_sources"]:
+                    # Filtrar las fuentes para incluir solo las más relevantes
+                    sources = filter_most_relevant_sources(query, result["relevant_sources"], response_text)
                     if sources:
                         yield f"data: {json.dumps({'type': 'sources', 'content': sources})}\n\n".encode('utf-8')
             else:
@@ -99,6 +100,64 @@ async def chat(
         
     try:
         result = process_query_with_web_search(query, session_id, prompt_type.value)
+        
+        # Filtrar las fuentes para incluir solo las más relevantes
+        if "relevant_sources" in result and result["relevant_sources"]:
+            result["relevant_sources"] = filter_most_relevant_sources(
+                query, 
+                result["relevant_sources"], 
+                result.get("response", "")
+            )
+            
         return JSONResponse(result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+def filter_most_relevant_sources(query: str, sources: List[Dict], response: str, max_sources: int = 5) -> List[Dict]:
+    """
+    Filtra las fuentes para mostrar solo las más relevantes al interés real del usuario.
+    
+    Args:
+        query: La consulta original del usuario
+        sources: Lista de fuentes encontradas
+        response: La respuesta generada por el modelo
+        max_sources: Número máximo de fuentes a devolver
+        
+    Returns:
+        Lista filtrada de fuentes relevantes
+    """
+    if not sources:
+        return []
+        
+    # Si hay menos fuentes que el máximo, devolver todas
+    if len(sources) <= max_sources:
+        return sources
+        
+    # Preparar las palabras clave de la consulta y respuesta para comparación
+    query_keywords = set([word.lower() for word in query.split() if len(word) > 3])
+    response_keywords = set([word.lower() for word in response.split() if len(word) > 3])
+    
+    # Calcular puntuación de relevancia para cada fuente
+    scored_sources = []
+    for source in sources:
+        title = source.get("title", "").lower()
+        snippet = source.get("snippet", "").lower()
+        combined_text = f"{title} {snippet}"
+        
+        # Puntuación basada en coincidencia con palabras clave de la consulta
+        query_score = sum(1 for keyword in query_keywords if keyword in combined_text)
+        
+        # Puntuación basada en coincidencia con palabras clave de la respuesta
+        response_score = sum(1 for keyword in response_keywords if keyword in combined_text)
+        
+        # Puntuación total - damos más peso a la coincidencia con la consulta
+        total_score = (query_score * 2) + response_score
+        
+        # Añadir a la lista con puntuación
+        scored_sources.append((source, total_score))
+        
+    # Ordenar fuentes por puntuación de relevancia (mayor a menor)
+    scored_sources.sort(key=lambda x: x[1], reverse=True)
+    
+    # Devolver las fuentes más relevantes, hasta el máximo especificado
+    return [source for source, _ in scored_sources[:max_sources]]

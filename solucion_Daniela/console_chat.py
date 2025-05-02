@@ -52,7 +52,7 @@ def display_streaming_response(response: requests.Response):
                 console.print(f"- {title}")
                 console.print(f"  [blue]{link}[/blue]")
         
-        console.print()  # Línea en blanco final
+      
     except Exception as e:
         console.print(f"\n[red]Error al procesar la respuesta: {str(e)}[/red]")
 
